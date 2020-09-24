@@ -13,6 +13,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::group(['namespace' => 'App\Http\Controllers'], function () { // You have to specify the namespace in laravel 8 apparently.
+    /**
+     * Our main aggregation function
+     */
+    Route::post('/aggregate/{hotel}', 'AggregatorController@index');
+
+    /**
+     * Dummy data routes for testing
+     * Remember to add to VerifyCsrfToken except array when adding more.
+     */
+    Route::post('/BestHotels', 'Testing\DummyDataController@bestHotels');
+    Route::post('/TopHotel', 'Testing\DummyDataController@topHotel');
+});
+
 Route::get('/', function () {
     return view('welcome');
 });
