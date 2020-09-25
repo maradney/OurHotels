@@ -11,4 +11,5 @@
 
 - Run 2 different servings of laravel on 2 different ports and make sure one of them is 8080
 - Providers are stored in ProvidersHelper.php
+- This is a video of the entire coding process (https://youtu.be/ZtA0DEF_qd8).
 - Have fun and contact me for any questions whatsoever.
