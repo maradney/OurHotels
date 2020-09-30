@@ -17,7 +17,7 @@ Route::group(['namespace' => 'App\Http\Controllers'], function () { // You have 
     /**
      * Our main aggregation function
      */
-    Route::post('/aggregate/{hotel}', 'AggregatorController@index');
+    Route::post('/hotels', 'AggregatorController@index');
 
     /**
      * Dummy data routes for testing

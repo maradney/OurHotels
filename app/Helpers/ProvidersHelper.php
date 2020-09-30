@@ -12,10 +12,9 @@ class ProvidersHelper {
      * Return config of a given hotel
      * Note: when adding a new provider all parameters must exist even if empty.
      *
-     * @param  string $hotel
      * @return array
      */
-    public static function getProvider($hotel)
+    public static function getProviders()
     {
         $providers = [
             'BestHotels' => [
@@ -57,6 +56,6 @@ class ProvidersHelper {
             ],
         ];
 
-        return array_key_exists($hotel, $providers) ? $providers[$hotel] : null;
+        return $providers;
     }
 }

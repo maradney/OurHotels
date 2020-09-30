@@ -15,12 +15,12 @@ class AggregatorController extends Controller
      * @param  string $hotel
      * @return Illuminate\Http\Response
      */
-    public function index(AggregatorRequest $request, $hotel)
+    public function index(AggregatorRequest $request)
     {
         /**
          * Get requested hotel data
          */
-        $result = ProvidersRequestHelper::getHotel($request, $hotel);
+        $result = ProvidersRequestHelper::getHotels($request);
         return response()->json($result);
     }
 }

@@ -11,48 +11,62 @@ class ProvidersRequestHelper
     /**
      * All providers data exist in ProvidersHelper.php
      */
+    public static $providers;
     public static $provider;
-    
+
     /**
      * Send a guzzle request for the hotel provider.
      *
      * @param  Illuminate\Http\Request $request
-     * @param  string $hotel
      * @return array
      */
-    public static function getHotel(Request $request, $hotel)
+    public static function getHotels(Request $request)
     {
         /**
          * Get prvider data.
          */
-        self::setProvider($hotel);
-        // parse request keys from our parameter names to the provider's
-        $input = self::getProviderRequestParameter($request->all(), $hotel);
+        self::setProviders();
 
-        // send guzzle request
-        $client = new Client();
-        $response = $client->request('POST', self::getProviderUrl($hotel), [
-            'form_params' => $input,
-        ]);
+        $result = [];
+        foreach (self::$providers as $provider_name => $provider_data) {
+            self::$provider = $provider_data;
+            // parse request keys from our parameter names to the provider's
+            $input = self::getProviderRequestParameter($request->all(), $provider_name);
 
-        // parse and return response
-        return self::parseProviderResponse($response, $hotel);
+            // send guzzle request
+            $client = new Client();
+            $response = $client->request('POST', self::getProviderUrl($provider_name), [
+                'form_params' => $input,
+            ]);
+
+            // parse provider's response and merge it to our result
+            $result = array_merge($result, self::parseProviderResponse($response, $provider_name));
+        }
+
+        $sorting_key = $request->get('sort_by', 'fare');
+        $sorting_method = $request->get('sort_method', 'ASC');
+
+        if (in_array($sorting_method, ['ASC', 'asc', 1])) {
+            $result = collect($result)->sortBy($sorting_key);
+        } else {
+            $result = collect($result)->sortByDesc($sorting_key);
+        }
+        return $result;
     }
-    
+
     /**
      * Fetch provider's settings (config)
      *
-     * @param  string $hotel
-     * @return array
+     * @return void
      */
-    public static function setProvider($hotel)
+    public static function setProviders()
     {
-        self::$provider = ProvidersHelper::getProvider($hotel);
-        if (!self::$provider) {
+        self::$providers = ProvidersHelper::getProviders();
+        if (!self::$providers) {
             abort(404);
         }
     }
-    
+
     /**
      * Return provider's url
      *
@@ -63,7 +77,7 @@ class ProvidersRequestHelper
     {
         return self::$provider['url'];
     }
-    
+
     /**
      * Parse and return response in our format
      *
@@ -80,8 +94,6 @@ class ProvidersRequestHelper
         $parsing_functions = self::$provider['parsers'];
         $result = [];
 
-        
-
         // loop and map providers response to our format
         foreach ($response as $row) {
             $result[] = [
@@ -95,7 +107,7 @@ class ProvidersRequestHelper
     }
 
     /**
-     * A function to check if this data type has a parser and run it    
+     * A function to check if this data type has a parser and run it
      *
      * @param  array $parsing_functions
      * @param  string $key
@@ -109,7 +121,7 @@ class ProvidersRequestHelper
         }
         return $value;
     }
-    
+
     /**
      * Parse request keys from our parameter names to the provider's
      *
